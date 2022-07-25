@@ -1,3 +1,22 @@
+from nltk.corpus import words, names
+import ssl
+import nltk
+
+
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
+
+
+nltk.download("words", quiet=True)
+nltk.download("names", quiet=True)
+
+
+word_list = words.words()
+name_list = names.words()
 
 
 def encrypt(text_to_encript, key):
@@ -34,15 +53,28 @@ def decrypt(encoded_msg, key):
     return encrypt(encoded_msg, -key)
 
 
-def crack(encoded_msg, key):
-    pass
+def crack(encoded_msg):
+
+    non_sense = ''
+
+    for i in range(1, 27):
+        new_word = decrypt(encoded_msg, i)
+        words = new_word.split()
+        count = 0
+        for j in range(0, len(encoded_msg.split())):
+            if words[j] in word_list:
+                count += 1
+                if count > (.5*len(encoded_msg.split())):
+                    return new_word
+                else:
+                    continue
+
+    if count <= 1:
+        return non_sense
 
 
-# if __name__ == '__main__':
-    # test1 = encrypt("1234", 3)
-    # print(test1)
-    # test2 = encrypt('789', 3)
-    # print(test2)
-    # test3 = encrypt('123', 7236)
-    # print(test3)
-    # test4 = decrypt('4567', 3)
+if __name__ == '__main__':
+    phrase = "Ix fhw txe fofg of ndhrl, it nad tho hndrk of allkd."
+    encrypted = encrypt(phrase, 10)
+    last_test = crack(encrypted)
+    print(last_test)
